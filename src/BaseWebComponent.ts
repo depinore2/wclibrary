@@ -1,6 +1,6 @@
 import purify from 'dompurify' 
 
-export default abstract class BaseWebComponent extends HTMLElement
+export abstract class BaseWebComponent extends HTMLElement
 {
     constructor(styles: string, initialContent: string = '') {
         super();

@@ -8,10 +8,6 @@
     "type": "git",
     "url": "git+https://github.com/depinore/wclibrary.git"
   },
-  "files": [
-    "src",
-    "tsconfig*"
-  ],
   "keywords": [],
   "author": "Edgardo Martinez",
   "license": "ISC",
@@ -20,10 +16,7 @@
   },
   "homepage": "https://github.com/depinore/wclibrary#readme",
   "devDependencies": {
-    "browserify": "16.2.3",
-    "http-server": "0.11.1",
-    "typescript": "3.2.2",
-    "uglify-es": "3.3.9"
+    "typescript": "3.2.2"
   },
   "dependencies": {
     "dompurify": "1.0.8"

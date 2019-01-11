@@ -1,17 +1,17 @@
 {
   "compilerOptions": {
     /* Basic Options */
-    "target": "es2016",                          /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017','ES2018' or 'ESNEXT'. */
+    "target": "es5",                          /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017','ES2018' or 'ESNEXT'. */
     "module": "commonjs",                     /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */
     // "lib": [],                             /* Specify library files to be included in the compilation. */
     "allowJs": false,                       /* Allow javascript files to be compiled. */
      "checkJs": false,                       /* Report errors in .js files. */
     // "jsx": "preserve",                     /* Specify JSX code generation: 'preserve', 'react-native', or 'react'. */
-    "declaration": true,                   /* Generates corresponding '.d.ts' file. */
+    //"declaration": false,                   /* Generates corresponding '.d.ts' file. */
     "declarationMap": true,                /* Generates a sourcemap for each corresponding '.d.ts' file. */
     // "sourceMap": true,                     /* Generates corresponding '.map' file. */
     // "outFile": "src/index.js",                       /* Concatenate and emit output to single file. */
-     "outDir": "./dist_tsc",                        /* Redirect output structure to the directory. */
+    // "outDir": "./dist_tsc",                        /* Redirect output structure to the directory. */
     //"rootDir": "./src",                       /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
     // "composite": true,                     /* Enable project compilation */
     // "removeComments": true,                /* Do not emit comments to output. */
@@ -52,6 +52,8 @@
     // "mapRoot": "",                         /* Specify the location where debugger should locate map files instead of generated locations. */
      "inlineSourceMap": true,               /* Emit a single file with source maps instead of having a separate file. */
      "inlineSources": true,                 /* Emit the source alongside the sourcemaps within a single file; requires '--inlineSourceMap' or '--sourceMap' to be set. */
+
+    "composite": true,
 
     /* Experimental Options */
     "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
