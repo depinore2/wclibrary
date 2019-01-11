@@ -1,15 +1,14 @@
 {
-  "name": "wclibrary",
+  "name": "@depinore/wclibrary",
   "version": "1.0.0",
   "description": "",
-  "main": "WebComponentLibrary.js",
+  "main": "BaseWebComponent.ts",
   "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/depinore/wclibrary.git"
   },
   "files": [
-    "dist",
     "src"
   ],
   "keywords": [],
@@ -20,11 +19,12 @@
   },
   "homepage": "https://github.com/depinore/wclibrary#readme",
   "devDependencies": {
+    "browserify": "16.2.3",
     "http-server": "0.11.1",
-    "typescript": "3.2.2"
+    "typescript": "3.2.2",
+    "uglify-es": "3.3.9"
   },
   "dependencies": {
-    "@vaadin/router": "1.2.0",
     "dompurify": "1.0.8"
   }
 }

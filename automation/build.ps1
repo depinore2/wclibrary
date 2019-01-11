@@ -7,7 +7,7 @@ param(
 $builds = @( @{ friendlyName = "Default Build"; config = "tsconfig.json"; output = "dist/$buildNumber.js" } )
 
 if($WithCompat) {
-    $builds = $builds += @{ friendlyName = "Compatibility Build"; config = "tsconfig-compat.json"; output = "dist/compat_$buildNumber.js" }
+    $builds = $builds += @{ friendlyName = "Compatibility Build"; config = "tsconfig-compat.json"; output = "dist/$buildNumber.es5.js" }
 }
 
 $buildStagingDirectory = "$psscriptroot/../dist_tsc"
@@ -17,7 +17,7 @@ foreach($build in $builds) {
     $runTsc = { node "$psscriptroot/../node_modules/typescript/lib/tsc.js" '-p' $build.config '--outDir' $buildStagingDirectory }
     $runBrowserify = {
         param($debug = $false)
-        & "$psscriptroot/browserify.ps1" "$buildStagingDirectory/index.js" $build.output $debug
+        & "$psscriptroot/browserify.ps1" "$buildStagingDirectory/basewebcomponent.js" $build.output $debug
     }
     $runUglify = { node "$psscriptroot/../node_modules/uglify-es/bin/uglifyjs" $build.output -cm -o $build.output }
 
