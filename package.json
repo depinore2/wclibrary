@@ -9,7 +9,8 @@
     "url": "git+https://github.com/depinore/wclibrary.git"
   },
   "files": [
-    "src"
+    "src",
+    "tsconfig*"
   ],
   "keywords": [],
   "author": "Edgardo Martinez",
