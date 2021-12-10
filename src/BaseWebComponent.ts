@@ -40,6 +40,16 @@ export abstract class BaseWebComponent extends HTMLElement
         else
             throw new Error('Shadow root unexectedly missing from element.');
     }
+
+    // use this to easily sanitize an entire html template string.
+    protected html(strings:TemplateStringsArray, ...expressions: string[]) {
+        let output = '';
+        for(let i = 0; i < strings.length; i++) {
+            output += strings[i] + this.sanitize(expressions[i]);
+        }
+        return output;
+    }
+    
     protected generateSanitizer(): (content: string) => string {
         return content => purify.sanitize(content, { });
     }
