@@ -47,7 +47,7 @@ export abstract class BaseWebComponent extends HTMLElement
         use this to easily sanitize an entire html template string.
         example usage:
             this.template('#myContainerDiv')`
-                <div>potentially unsafe value: ${someData.someValue}
+                <div>potentially unsafe value: ${someData.someValue}</div>
             `;
 
             ^^^ notice that this.sanitize() didn't have to be called here.  It will "magically" sanitize any string interpolation.
