@@ -55,11 +55,14 @@ export abstract class BaseWebComponent extends HTMLElement
     */
     protected template(containerElement = '') {
         const self = this;
+        const cleanerElement = document.createElement('div');
         return function (strings: TemplateStringsArray, ...expressions: string[]) {
             let output = '';
             for (let i = 0; i < strings.length; i++) {
-                output += strings[i] + self.sanitize(expressions[i]);
+                cleanerElement.innerText = self.sanitize(expressions[i])
+                output += strings[i] + cleanerElement.innerHTML;
             }
+            cleanerElement.innerHTML = '';
             self.render(output, containerElement);
         }
     }
