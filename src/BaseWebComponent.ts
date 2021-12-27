@@ -73,7 +73,7 @@ export abstract class BaseWebComponent extends HTMLElement {
         const self = this;
 
         return function (strings: TemplateStringsArray, ...expressions: string[]) {
-            self.render(containerElement, escapeHtml ? self.html(strings, ...expressions) : self.htmlDoNotEscape(strings, ...expressions)
+            self.render(containerElement, escapeHtml ? self.html(strings, ...expressions) : self.htmlDoNotEscape(strings, ...expressions));
         }
     }
 
