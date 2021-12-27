@@ -55,21 +55,21 @@ export abstract class BaseWebComponent extends HTMLElement
     */
     protected template(containerElement = '', escapeHtml = true) {
         const self = this;
-        const cleanerElement = document.createElement('div');
+        const cleanerElement = document.createElement('a');
+
         return function (strings: TemplateStringsArray, ...expressions: string[]) {
             let output = '';
             for (let i = 0; i < strings.length; i++) {
                 let content = self.sanitize(expressions[i]);
 
                 if(escapeHtml) {
-                    cleanerElement.innerText = content;
-                    content = cleanerElement.innerHTML;
+                    // https://stackoverflow.com/a/15348311
+                    const textNode = document.createTextNode(content);
+                    content = (cleanerElement.appendChild(textNode).parentNode as HTMLElement | null)?.innerHTML || '';
+                    cleanerElement.removeChild(textNode);
                 }
                 
                 output += strings[i] + content;
-            }
-            if(escapeHtml) {
-                cleanerElement.innerHTML = '';
             }
 
             self.render(output, containerElement);
