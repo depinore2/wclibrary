@@ -60,7 +60,8 @@ export abstract class BaseWebComponent extends HTMLElement
         return function (strings: TemplateStringsArray, ...expressions: string[]) {
             let output = '';
             for (let i = 0; i < strings.length; i++) {
-                const content = escapeHtml ? he.encode(expressions[i]) : expressions[i];
+                const expression = expressions[i];
+                const content = escapeHtml && expression ? he.encode(expression) : expression;
                 output += strings[i] + self.sanitize(content)
             }
 
