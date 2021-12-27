@@ -53,16 +53,25 @@ export abstract class BaseWebComponent extends HTMLElement
             ^^^ notice that this.sanitize() didn't have to be called here.  It will "magically" sanitize any string interpolation.
             More info: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates
     */
-    protected template(containerElement = '') {
+    protected template(containerElement = '', escapeHtml = true) {
         const self = this;
         const cleanerElement = document.createElement('div');
         return function (strings: TemplateStringsArray, ...expressions: string[]) {
             let output = '';
             for (let i = 0; i < strings.length; i++) {
-                cleanerElement.innerText = self.sanitize(expressions[i])
+                let content = self.sanitize(expressions[i]);
+
+                if(escapeHtml) {
+                    cleanerElement.innerText = content;
+                    content = cleanerElement.innerHTML;
+                }
+                
                 output += strings[i] + cleanerElement.innerHTML;
             }
-            cleanerElement.innerHTML = '';
+            if(escapeHtml) {
+                cleanerElement.innerHTML = '';
+            }
+            
             self.render(output, containerElement);
         }
     }
