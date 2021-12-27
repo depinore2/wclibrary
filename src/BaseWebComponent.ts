@@ -1,13 +1,12 @@
-import purify from 'dompurify' 
+import purify from 'dompurify'
 import * as he from 'he'
 
-export abstract class BaseWebComponent extends HTMLElement
-{
+export abstract class BaseWebComponent extends HTMLElement {
     constructor(styles: string, initialContent: string = '') {
         super();
 
         this.attachShadow({ mode: 'open' });
-        
+
         const styleTag = document.createElement('style');
         styleTag.appendChild(document.createTextNode(styles));
 
@@ -15,7 +14,7 @@ export abstract class BaseWebComponent extends HTMLElement
         contentTag.setAttribute('id', 'content');
         contentTag.innerHTML = initialContent;
 
-        if(this.shadowRoot !== null) {
+        if (this.shadowRoot !== null) {
             this.shadowRoot.appendChild(styleTag);
             this.shadowRoot.appendChild(contentTag);
         }
@@ -24,24 +23,40 @@ export abstract class BaseWebComponent extends HTMLElement
     }
 
     // prefer to use template() instead, as it's safer and simpler to use.
-    protected render(content: string, selector: string = ''): void 
-    {
-        if(this.shadowRoot) {
+    protected render(content: string, selector: string = ''): void {
+        if (this.shadowRoot) {
             const contentRoot = this.shadowRoot.querySelector('#content');
-        
-            if(contentRoot === null) 
+
+            if (contentRoot === null)
                 throw new Error('Content root (#content) unexpectedly missing from element.');
             else {
-                const renderRoot = selector === '' 
-                                    ? contentRoot
-                                    : contentRoot.querySelector(selector);
+                const renderRoot = selector === ''
+                    ? contentRoot
+                    : contentRoot.querySelector(selector);
 
-                if(renderRoot !== null)
+                if (renderRoot !== null)
                     renderRoot.innerHTML = content;
             }
         }
         else
             throw new Error('Shadow root unexectedly missing from element.');
+    }
+
+    private buildHtmlString(constantSections: TemplateStringsArray, interpolatedSections: string[]) {
+        let output = '';
+        for (let i = 0; i < constantSections.length; i++) {
+            const constant = constantSections[i];
+            output += constantSections[i] + this.sanitize(interpolatedSections[i]);
+        }
+
+        return output;
+    }
+    // only use this if you're sure that the strings you are displaying are already escaped, or is content that is not dynamic.
+    protected htmlDoNotEscape(strings: TemplateStringsArray, ...expressions: string[]) {
+        return this.buildHtmlString(strings,  expressions);
+    }
+    protected html(strings: TemplateStringsArray, ...expressions: string[]) {
+        return this.buildHtmlString(strings, expressions.map(exp => exp ? he.encode(exp) : exp))
     }
 
     /* 
@@ -58,25 +73,13 @@ export abstract class BaseWebComponent extends HTMLElement
         const self = this;
 
         return function (strings: TemplateStringsArray, ...expressions: string[]) {
-            let output = '';
-            for (let i = 0; i < strings.length; i++) {
-                const expression = expressions[i]
-                if(expression) {
-                    const escapedExpression = escapeHtml ? he.encode(expression) : expression;
-                    output += strings[i] + self.sanitize(escapedExpression)
-                }
-                else {
-                    output += strings[i];
-                }
-            }
-
-            self.render(output, containerElement);
+            self.render(containerElement, (escapeHtml ? self.html : self.htmlDoNotEscape)(strings, ...expressions));
         }
     }
 
-    
+
     protected generateSanitizer(): (content: string) => string {
-        return content => purify.sanitize(content, { });
+        return content => purify.sanitize(content, {});
     }
     protected sanitize = this.generateSanitizer().bind(this);
 }
