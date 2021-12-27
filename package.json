@@ -16,9 +16,11 @@
   },
   "homepage": "https://github.com/depinore/wclibrary#readme",
   "devDependencies": {
+    "@types/he": "^1.1.2",
     "typescript": "3.2.2"
   },
   "dependencies": {
-    "dompurify": "^2.2.8"
+    "dompurify": "^2.2.8",
+    "he": "^1.2.0"
   }
 }
