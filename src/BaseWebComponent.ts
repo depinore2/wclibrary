@@ -66,12 +66,12 @@ export abstract class BaseWebComponent extends HTMLElement
                     content = cleanerElement.innerHTML;
                 }
                 
-                output += strings[i] + cleanerElement.innerHTML;
+                output += strings[i] + content;
             }
             if(escapeHtml) {
                 cleanerElement.innerHTML = '';
             }
-            
+
             self.render(output, containerElement);
         }
     }
