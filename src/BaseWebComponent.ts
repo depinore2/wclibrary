@@ -1,7 +1,18 @@
 import purify from 'dompurify'
 import * as he from 'he'
+import { minViewportWidths } from './constants';
+import { FormFactor } from './types'
 
 export abstract class BaseWebComponent extends HTMLElement {
+    disconnectionCallbacks: { [id: number]: Function | undefined } = {};
+    currentFormFactor: FormFactor = 'mobile';
+
+    mobileMediaQueryList = window.matchMedia(`(max-width: ${minViewportWidths.tablet - 1}px)`);
+    tabletMediaQueryList = window.matchMedia(`(min-width: ${minViewportWidths.tablet}px) and (max-width: ${minViewportWidths.desktop - 1}px)`);
+    desktopMediaQueryList = window.matchMedia(`(min-width: ${minViewportWidths.desktop}px)`);
+
+    callbackCounter = 0
+    
     constructor(styles: string, initialContent: string = '') {
         super();
 
@@ -21,6 +32,8 @@ export abstract class BaseWebComponent extends HTMLElement {
         else
             throw new Error('ShadowRoot did not initialize properly.');
     }
+
+    // === HTML RENDERING ===
 
     // prefer to use template() instead, as it's safer and simpler to use.
     protected render(content: string, selector: string = ''): void {
@@ -53,7 +66,7 @@ export abstract class BaseWebComponent extends HTMLElement {
     }
     // only use this if you're sure that the strings you are displaying are already escaped, or is content that is not dynamic.
     protected htmlDoNotEscape(strings: TemplateStringsArray, ...expressions: string[]) {
-        return this.buildHtmlString(strings,  expressions);
+        return this.buildHtmlString(strings, expressions);
     }
     protected html(strings: TemplateStringsArray, ...expressions: string[]) {
         return this.buildHtmlString(strings, expressions.map(exp => exp ? he.encode(exp) : exp))
@@ -82,4 +95,80 @@ export abstract class BaseWebComponent extends HTMLElement {
         return content => purify.sanitize(content, {});
     }
     protected sanitize = this.generateSanitizer().bind(this);
+
+    // === EVENT HANDLING AND COMPONENT COMMUNICATION ===
+    removeGlobalEventListener(disconnectionId: number) {
+        const callback = this.disconnectionCallbacks[disconnectionId];
+        if (callback) {
+            callback();
+        }
+        this.disconnectionCallbacks[disconnectionId] = undefined;
+    }
+    addGlobalEventListener(eventName: string, eventHandler: (e: CustomEvent) => (void | Promise<void>)): number {
+        window.addEventListener(eventName, eventHandler as any)
+        const disconnectId: number = this.callbackCounter++;
+        this.disconnectionCallbacks[disconnectId] = () => window.removeEventListener(eventName, eventHandler as any)
+        return disconnectId;
+    }
+    addTemporaryGlobalEventListener<T>(eventName: string, eventHandler: (e: CustomEvent) => (void | Promise<void>), until: (data: CustomEvent) => boolean): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            async function wrapper(e: CustomEvent<T>) {
+                await eventHandler(e);
+                if (until(e)) {
+                    window.removeEventListener(eventName, wrapper as any);
+                    resolve();
+                }
+            }
+            window.addEventListener(eventName, wrapper as any);
+        })
+    }
+    addOneTimeGlobalEventListener<T>(eventName: string, eventHandler: (e: CustomEvent) => (T | Promise<T>)): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
+            window.addEventListener(eventName, (async (e: CustomEvent) => {
+                const result = await eventHandler(e);
+                resolve(result);
+            }) as any, { once: true });
+        })
+    }
+
+    disconnectedCallback() {
+        const callbacks = Object.keys(this.disconnectionCallbacks)
+            .map(id => this.disconnectionCallbacks[parseInt(id)]);
+        for (let callback of callbacks) {
+            callback && callback();
+        }
+    }
+    fireGlobalEvent(eventName: string, data?: unknown) {
+        window.dispatchEvent(new CustomEvent(eventName, { detail: data }))
+    }
+
+    // === RESPONSIVE WEB ===
+    addFormFactorListener(cb: (size: FormFactor) => void) {
+        const createFormFactorHandler = (size: FormFactor) => {
+            return (e: MediaQueryListEvent) => e.matches && cb(size);
+        }
+        const handleMobile = createFormFactorHandler('mobile');
+        const handleTablet = createFormFactorHandler('tablet');
+        const handleDesktop = createFormFactorHandler('desktop');
+
+        this.mobileMediaQueryList.addEventListener('change', handleMobile);
+        this.disconnectionCallbacks[this.callbackCounter++] = (() => this.mobileMediaQueryList.removeEventListener('change', handleMobile));
+
+        this.tabletMediaQueryList.addEventListener('change', handleTablet);
+        this.disconnectionCallbacks[this.callbackCounter++] = (() => this.tabletMediaQueryList.removeEventListener('change', handleTablet));
+
+        this.desktopMediaQueryList.addEventListener('change', handleDesktop);
+        this.disconnectionCallbacks[this.callbackCounter++] = (() => this.desktopMediaQueryList.removeEventListener('change', handleDesktop));
+
+        // fire off an initial call 
+        if (this.mobileMediaQueryList.matches) {
+            cb('mobile');
+        }
+        else if (this.tabletMediaQueryList.matches) {
+            cb('tablet');
+        }
+        else if (this.desktopMediaQueryList.matches) {
+            cb('desktop');
+        }
+    }
 }
