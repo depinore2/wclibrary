@@ -122,11 +122,10 @@ export abstract class BaseWebComponent extends HTMLElement {
             window.addEventListener(eventName, wrapper as any);
         })
     }
-    addOneTimeGlobalEventListener<T = any>(eventName: string, eventHandler: (e: CustomEvent<T>) => (T | Promise<T>)): Promise<T> {
+    addOneTimeGlobalEventListener<T = any>(eventName: string): Promise<T> {
         return new Promise<T>((resolve, reject) => {
             window.addEventListener(eventName, (async (e: CustomEvent<T>) => {
-                const result = await eventHandler(e);
-                resolve(result);
+                resolve(e.detail);
             }) as any, { once: true });
         })
     }
