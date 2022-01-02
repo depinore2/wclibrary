@@ -104,13 +104,13 @@ export abstract class BaseWebComponent extends HTMLElement {
         }
         this.disconnectionCallbacks[disconnectionId] = undefined;
     }
-    addGlobalEventListener(eventName: string, eventHandler: (e: CustomEvent) => (void | Promise<void>)): number {
+    addGlobalEventListener<EventDetailType = any>(eventName: string, eventHandler: (e: CustomEvent<EventDetailType>) => (void | Promise<void>)): number {
         window.addEventListener(eventName, eventHandler as any)
         const disconnectId: number = this.callbackCounter++;
         this.disconnectionCallbacks[disconnectId] = () => window.removeEventListener(eventName, eventHandler as any)
         return disconnectId;
     }
-    addTemporaryGlobalEventListener<T>(eventName: string, eventHandler: (e: CustomEvent) => (void | Promise<void>), until: (data: CustomEvent) => boolean): Promise<void> {
+    addTemporaryGlobalEventListener<T = any>(eventName: string, eventHandler: (e: CustomEvent<T>) => (void | Promise<void>), until: (data: CustomEvent) => boolean): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             async function wrapper(e: CustomEvent<T>) {
                 await eventHandler(e);
@@ -122,9 +122,9 @@ export abstract class BaseWebComponent extends HTMLElement {
             window.addEventListener(eventName, wrapper as any);
         })
     }
-    addOneTimeGlobalEventListener<T>(eventName: string, eventHandler: (e: CustomEvent) => (T | Promise<T>)): Promise<T> {
+    addOneTimeGlobalEventListener<T = any>(eventName: string, eventHandler: (e: CustomEvent<T>) => (T | Promise<T>)): Promise<T> {
         return new Promise<T>((resolve, reject) => {
-            window.addEventListener(eventName, (async (e: CustomEvent) => {
+            window.addEventListener(eventName, (async (e: CustomEvent<T>) => {
                 const result = await eventHandler(e);
                 resolve(result);
             }) as any, { once: true });
